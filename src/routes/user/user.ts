@@ -19,31 +19,31 @@ const app = Router();
 /**
  * GET: Get all users `/user`
  */
-app.get('/', withAuth, async (req, res) => {
-  // get user from req acquired in with auth middleware
-  const users = await UserModel.find({ deleted: false });
-  // sanity check for user
-  if (users.length === 0) {
-    return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
-  }
-  // send the user back
-  return res.json({ users, success: true, message: 'Success' });
-});
+// app.get('/', withAuth, async (req, res) => {
+//   // get user from req acquired in with auth middleware
+//   const users = await UserModel.find({ deleted: false, type: 1 });
+//   // sanity check for user
+//   if (users.length === 0) {
+//     return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
+//   }
+//   // send the user back
+//   return res.json({ users, success: true, message: 'Success' });
+// });
 
 /**
  * GET: Get one user `/user/:id`
  */
-app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
-  const { id } = req.params;
-  // get user with id
-  const user = await UserModel.findOne({ _id: id, deleted: false });
-  // sanity check for user
-  if (!user) {
-    return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
-  }
-  // send the user back
-  return res.json({ user, success: true });
-});
+// app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
+//   const { id } = req.params;
+//   // get user with id
+//   const user = await UserModel.findOne({ _id: id, deleted: false });
+//   // sanity check for user
+//   if (!user) {
+//     return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
+//   }
+//   // send the user back
+//   return res.json({ user, success: true });
+// });
 
 // /**
 //  * GET: Get users by type `/user/type`
@@ -81,139 +81,139 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
 // /**
 //  * POST: Login a user `/user/login`
 //  */
-app.post('/login', requires({ body: ['email', 'password'] }), async (req, res) => {
-  // get this
-  const { email, password, registrationToken } = req.body;
-  // try
-  try {
-    // find the user and don't return the isAdmin flag
-    const user = (await UserModel.findOne({ email })) as InstanceType<User>;
-    // sanity check for user
-    if (!user) {
-      // error out
-      return res.status(400).json({ success: false, message: 'Not found email' });
-    }
-    // check that password is got for user
-    if (!(await user.checkPassword(password))) {
-      // error out
-      return res.status(400).json({ success: false, message: 'Not match email/password' });
-    }
+// app.post('/login', requires({ body: ['email', 'password'] }), async (req, res) => {
+//   // get this
+//   const { email, password, registrationToken } = req.body;
+//   // try
+//   try {
+//     // find the user and don't return the isAdmin flag
+//     const user = (await UserModel.findOne({ email })) as InstanceType<User>;
+//     // sanity check for user
+//     if (!user) {
+//       // error out
+//       return res.status(400).json({ success: false, message: 'Not found email' });
+//     }
+//     // check that password is got for user
+//     if (!(await user.checkPassword(password))) {
+//       // error out
+//       return res.status(400).json({ success: false, message: 'Not match email/password' });
+//     }
 
-    if (registrationToken) {
-      const tokens = user.registrationTokens;
-      user.registrationTokens = _.union([registrationToken], tokens);
-      await user.save();
-    }
+//     if (registrationToken) {
+//       const tokens = user.registrationTokens;
+//       user.registrationTokens = _.union([registrationToken], tokens);
+//       await user.save();
+//     }
 
-    // return the user
-    return res.json({
-      user: user.toJSON(),
-      success: true,
-      token: await user.getJWT(),
-    });
-  } catch (e) {
-    // send errors
-    return res.status(500).json({ success: false, message: e });
-  }
-});
+//     // return the user
+//     return res.json({
+//       user: user.toJSON(),
+//       success: true,
+//       token: await user.getJWT(),
+//     });
+//   } catch (e) {
+//     // send errors
+//     return res.status(500).json({ success: false, message: e });
+//   }
+// });
 
 /**
  * POST: Register a user `/user`
  */
-app.post(
-  '/',
-  requires({ body: ['fullName', 'email', 'password', 'type', 'phoneNumber'] }),
-  validateString('fullName'),
-  validateEmail('email'),
-  validatePassword('password'),
-  validateUserType('type'),
+// app.post(
+//   '/',
+//   requires({ body: ['fullName', 'email', 'password', 'type', 'phoneNumber'] }),
+//   validateString('fullName'),
+//   validateEmail('email'),
+//   validatePassword('password'),
+//   validateUserType('type'),
 
-  async (req, res) => {
-    try {
-      // get this piece of info
-      const { fullName, email, password, type, phoneNumber } = req.body;
-      // get errors
-      const errors = validationResult(req);
-      // check for errors
-      if (!errors.isEmpty()) {
-        // send errors
-        return res.status(422).json({ errors: errors.array() });
-      }
-      // find the user and don't return the isAdmin flag
-      const existUser = (await UserModel.findOne({ email, deleted: false })) as InstanceType<User>;
-      // sanity check for existing user
-      if (existUser) {
-        // send errors
-        return res.status(400).json({ success: false, message: 'Email is in use' });
-      }
-      const userProperties = {
-        fullName,
-        email,
-        password,
-        type,
-        phoneNumber,
-      };
-      const user = new UserModel(userProperties);
-      // generate hash from password
-      await user.generateHash(password);
-      // save new user
-      await user.save();
-      // return success
-      return res.json({
-        user,
-        success: true,
-        token: await user.getJWT(),
-        message: 'User created',
-      });
-    } catch (e) {
-      return res.status(500).json({ success: false, message: e });
-    }
-  },
-);
+//   async (req, res) => {
+//     try {
+//       // get this piece of info
+//       const { fullName, email, password, type, phoneNumber } = req.body;
+//       // get errors
+//       const errors = validationResult(req);
+//       // check for errors
+//       if (!errors.isEmpty()) {
+//         // send errors
+//         return res.status(422).json({ errors: errors.array() });
+//       }
+//       // find the user and don't return the isAdmin flag
+//       const existUser = (await UserModel.findOne({ email, deleted: false })) as InstanceType<User>;
+//       // sanity check for existing user
+//       if (existUser) {
+//         // send errors
+//         return res.status(400).json({ success: false, message: 'Email is in use' });
+//       }
+//       const userProperties = {
+//         fullName,
+//         email,
+//         password,
+//         type,
+//         phoneNumber,
+//       };
+//       const user = new UserModel(userProperties);
+//       // generate hash from password
+//       await user.generateHash(password);
+//       // save new user
+//       await user.save();
+//       // return success
+//       return res.json({
+//         user,
+//         success: true,
+//         token: await user.getJWT(),
+//         message: 'User created',
+//       });
+//     } catch (e) {
+//       return res.status(500).json({ success: false, message: e });
+//     }
+//   },
+// );
 
 /**
  * PATCH: Update a user `/user/:id`
  */
-app.patch(
-  '/:id',
-  withAuth,
-  requires({ params: ['id'], body: ['fullName', 'email', 'phoneNumber'] }),
-  validateString('fullName'),
-  validateString('email'),
-  validateEmail('phoneNumber'),
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      const { fullName, email, photo, password, phoneNumber } = req.body;
-      // if password
-      let newValue = {
-        fullName,
-        email,
-        phoneNumber,
-      };
-      // check if photo
-      if (photo) {
-        newValue = Object.assign(newValue, { photo });
-      }
-      const user = await UserModel.findByIdAndUpdate({ _id: id }, newValue, { new: true });
-      if (!user) {
-        return res.status(400).json({ success: false, message: 'User not found' });
-      }
-      if (password) {
-        await user.generateHash(password);
-      }
-      await user.save();
-      return res.json({
-        user,
-        success: true,
-        message: 'Update successful!',
-      });
-    } catch (e) {
-      // send errors
-      return res.status(500).json({ success: false, message: e });
-    }
-  },
-);
+// app.patch(
+//   '/:id',
+//   withAuth,
+//   requires({ params: ['id'], body: ['fullName', 'email', 'phoneNumber'] }),
+//   validateString('fullName'),
+//   validateString('email'),
+//   validateEmail('phoneNumber'),
+//   async (req, res) => {
+//     try {
+//       const { id } = req.params;
+//       const { fullName, email, photo, password, phoneNumber } = req.body;
+//       // if password
+//       let newValue = {
+//         fullName,
+//         email,
+//         phoneNumber,
+//       };
+//       // check if photo
+//       if (photo) {
+//         newValue = Object.assign(newValue, { photo });
+//       }
+//       const user = await UserModel.findByIdAndUpdate({ _id: id }, newValue, { new: true });
+//       if (!user) {
+//         return res.status(400).json({ success: false, message: 'User not found' });
+//       }
+//       if (password) {
+//         await user.generateHash(password);
+//       }
+//       await user.save();
+//       return res.json({
+//         user,
+//         success: true,
+//         message: 'Update successful!',
+//       });
+//     } catch (e) {
+//       // send errors
+//       return res.status(500).json({ success: false, message: e });
+//     }
+//   },
+// );
 
 // /**
 //  * DELETE: Remove a user `/user/:id`

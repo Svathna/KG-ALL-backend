@@ -5,7 +5,11 @@ const _ = require('lodash');
 import { TreeModel, UserModel } from '../../models';
 const { validationResult } = require('express-validator/check');
 const cloudinary = require('cloudinary').v2;
-const upload = require('../../config/multer');
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET,
+});
 // get the router
 const app = Router();
 
@@ -74,21 +78,21 @@ app.get('/user/:id', async (req, res) => {
  */
 app.post(
   '/',
-  requires({ body: ['name', 'location', 'description', 'owner', 'imageFile'] }),
+  requires({ body: ['name', 'location', 'description', 'owner', 'photo'] }),
 
   async (req, res) => {
     try {
       // get this piece of info
-      const { name, location, description, owner, imageFile } = req.body;
+      const { name, location, description, owner, photo } = req.body;
 
-      let photo;
+      // let photo;
 
-      cloudinary.uploader.upload('my_picture.jpg', function (error: any, result: any) {
-        console.log(result);
-        if (result) {
-          photo = result.url;
-        }
-      });
+      // cloudinary.uploader.upload(imageFile, function (error: any, result: any) {
+      //   console.log(result);
+      //   if (result) {
+      //     photo = result.url;
+      //   }
+      // });
 
       const treeProperties = {
         name,

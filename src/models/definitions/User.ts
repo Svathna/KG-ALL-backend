@@ -1,10 +1,11 @@
-import { Typegoose, prop, InstanceType, instanceMethod } from 'typegoose';
+import { Typegoose, prop, InstanceType, instanceMethod, Ref } from 'typegoose';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
+import Company from './Company';
 
 export enum UserType {
-  NORMAL_USER = 1,
-  ADMIN = 2,
+  ADMIN = 1,
+  NORMAL_USER = 2,
 }
 
 class User extends Typegoose {
@@ -20,12 +21,8 @@ class User extends Typegoose {
   @prop({
     required: true,
     unique: true,
-    validate: {
-      validator: val => isEmail(val),
-      message: '{VALUE} is not a valid email',
-    },
   })
-  email: string;
+  userName: string;
 
   @prop({})
   phoneNumber: number;
@@ -36,11 +33,11 @@ class User extends Typegoose {
   @prop()
   password?: string;
 
+  @prop({ ref: Company, required: true })
+  company: Ref<Company>;
+
   @prop({ required: true, default: false })
   deleted: boolean;
-
-  @prop({})
-  photo: string;
 
   @instanceMethod
   async generateHash(this: InstanceType<User>, password: string) {
@@ -90,13 +87,13 @@ class User extends Typegoose {
   getUserSafe(this: InstanceType<User>) {
     return {
       fullName: this.fullName,
-      email: this.email,
+      userName: this.userName,
     };
   }
 }
 
-function isEmail(val: string) {
-  return /\S+@\S+\.\S+/.test(val);
-}
+// function isEmail(val: string) {
+//   return /\S+@\S+\.\S+/.test(val);
+// }
 
 export default User;

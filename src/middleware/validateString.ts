@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 const { check, validationResult } = require('express-validator/check');
 
-function validateString(stringField: string, allowSpaces: boolean = false) {
+function validateString(stringField: string, allowSpaces: boolean = true) {
   if (allowSpaces) {
     return check(stringField)
       .trim()
