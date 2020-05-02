@@ -20,7 +20,6 @@ class User extends Typegoose {
 
   @prop({
     required: true,
-    unique: true,
   })
   userName: string;
 
@@ -30,11 +29,11 @@ class User extends Typegoose {
   @prop({ default: [] })
   registrationTokens: string[];
 
-  @prop()
-  password?: string;
+  @prop({ required: true })
+  password: string;
 
-  @prop({ ref: Company, required: true })
-  company: Ref<Company>;
+  @prop({ ref: Company })
+  company?: Ref<Company>;
 
   @prop({ required: true, default: false })
   deleted: boolean;

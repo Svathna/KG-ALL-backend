@@ -10,6 +10,7 @@ import { validateEmail } from '../../middleware/validateEmail';
 import { validatePassword } from '../../middleware/validatePassword';
 import { UserModel } from '../../models';
 import { validateUserType } from '../../middleware/validateUserType';
+import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 const { validationResult } = require('express-validator/check');
 const cloudinary = require('cloudinary').v2;
 const upload = require('../../config/multer');
@@ -19,16 +20,19 @@ const app = Router();
 /**
  * GET: Get all users `/user`
  */
-// app.get('/', withAuth, async (req, res) => {
-//   // get user from req acquired in with auth middleware
-//   const users = await UserModel.find({ deleted: false, type: 1 });
-//   // sanity check for user
-//   if (users.length === 0) {
-//     return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
-//   }
-//   // send the user back
-//   return res.json({ users, success: true, message: 'Success' });
-// });
+app.get('/', withAuthAdmin, async (req, res) => {
+  // get user from req acquired in with auth middleware
+  const users = await UserModel.find({ deleted: false, type: 2 }).populate({
+    path: 'company',
+    match: { deleted: false },
+  });
+  // sanity check for user
+  if (users.length === 0) {
+    return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
+  }
+  // send the user back
+  return res.json({ users, success: true, message: 'Success' });
+});
 
 /**
  * GET: Get one user `/user/:id`
@@ -120,56 +124,60 @@ const app = Router();
 /**
  * POST: Register a user `/user`
  */
-// app.post(
-//   '/',
-//   requires({ body: ['fullName', 'email', 'password', 'type', 'phoneNumber'] }),
-//   validateString('fullName'),
-//   validateEmail('email'),
-//   validatePassword('password'),
-//   validateUserType('type'),
+app.post(
+  '/',
+  withAuthAdmin,
+  requires({ body: ['fullName', 'userName', 'password', 'type', 'phoneNumber', 'company'] }),
+  validateString('fullName'),
+  validateString('userName'),
+  validatePassword('password'),
+  validateUserType('type'),
 
-//   async (req, res) => {
-//     try {
-//       // get this piece of info
-//       const { fullName, email, password, type, phoneNumber } = req.body;
-//       // get errors
-//       const errors = validationResult(req);
-//       // check for errors
-//       if (!errors.isEmpty()) {
-//         // send errors
-//         return res.status(422).json({ errors: errors.array() });
-//       }
-//       // find the user and don't return the isAdmin flag
-//       const existUser = (await UserModel.findOne({ email, deleted: false })) as InstanceType<User>;
-//       // sanity check for existing user
-//       if (existUser) {
-//         // send errors
-//         return res.status(400).json({ success: false, message: 'Email is in use' });
-//       }
-//       const userProperties = {
-//         fullName,
-//         email,
-//         password,
-//         type,
-//         phoneNumber,
-//       };
-//       const user = new UserModel(userProperties);
-//       // generate hash from password
-//       await user.generateHash(password);
-//       // save new user
-//       await user.save();
-//       // return success
-//       return res.json({
-//         user,
-//         success: true,
-//         token: await user.getJWT(),
-//         message: 'User created',
-//       });
-//     } catch (e) {
-//       return res.status(500).json({ success: false, message: e });
-//     }
-//   },
-// );
+  async (req, res) => {
+    try {
+      // get this piece of info
+      const { fullName, userName, password, type, phoneNumber, company } = req.body;
+      // get errors
+      const errors = validationResult(req);
+      // check for errors
+      if (!errors.isEmpty()) {
+        // send errors
+        return res.status(422).json({ errors: errors.array() });
+      }
+      // find the user and don't return the isAdmin flag
+      const existUser = (await UserModel.findOne({ userName, deleted: false })) as InstanceType<
+        User
+      >;
+      // sanity check for existing user
+      if (existUser) {
+        // send errors
+        return res.status(400).json({ success: false, message: 'User Name is in use' });
+      }
+      const userProperties = {
+        fullName,
+        userName,
+        password,
+        type,
+        phoneNumber,
+        company,
+      };
+      const user = new UserModel(userProperties);
+      // generate hash from password
+      await user.generateHash(password);
+      // save new user
+      await user.save();
+      // return success
+      return res.json({
+        user,
+        success: true,
+        token: await user.getJWT(),
+        message: 'User created',
+      });
+    } catch (e) {
+      return res.status(500).json({ success: false, message: e });
+    }
+  },
+);
 
 /**
  * PATCH: Update a user `/user/:id`
@@ -246,5 +254,58 @@ const app = Router();
 //     return res.status(500).json({ success: false, message: e });
 //   }
 // });
+
+/**
+ * POST: Register a user as Admin `/user/admin`
+ */
+// app.post(
+//     '/admin',
+//     requires({ body: ['fullName', 'userName', 'password', 'phoneNumber'] }),
+//     validateString('fullName'),
+//     validateString('userName'),
+//     validatePassword('password'),
+
+//     async (req, res) => {
+//         try {
+//             // get this piece of info
+//             const { fullName, userName, password, phoneNumber } = req.body;
+//             // get errors
+//             const errors = validationResult(req);
+//             // check for errors
+//             if (!errors.isEmpty()) {
+//                 // send errors
+//                 return res.status(422).json({ errors: errors.array() });
+//             }
+//             // find the admin user
+//             const existUser = (await UserModel.findOne({ type: UserType.ADMIN, deleted: false })) as InstanceType<User>;
+//             // sanity check for existing user
+//             if (existUser) {
+//                 // send errors
+//                 return res.status(400).json({ success: false, message: 'Admin already registered!' });
+//             }
+//             const userProperties = {
+//                 fullName,
+//                 userName,
+//                 password,
+//                 type: UserType.ADMIN,
+//                 phoneNumber
+//             };
+//             const user = new UserModel(userProperties);
+//             // generate hash from password
+//             await user.generateHash(password);
+//             // save new user
+//             await user.save();
+//             // return success
+//             return res.json({
+//                 user,
+//                 success: true,
+//                 token: await user.getJWT(),
+//                 message: 'Admin reigisterd!',
+//             });
+//         } catch (e) {
+//             return res.status(500).json({ success: false, message: e });
+//         }
+//     },
+// );
 
 export default app;

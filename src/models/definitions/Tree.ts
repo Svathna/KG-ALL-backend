@@ -1,11 +1,6 @@
 import { Typegoose, prop, Ref } from 'typegoose';
 import User from './User';
 
-export enum UserType {
-  NORMAL_USER = 1,
-  ADMIN = 2,
-}
-
 export interface GeoLocation {
   lat: string;
   long: string;
