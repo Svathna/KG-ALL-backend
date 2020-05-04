@@ -243,13 +243,10 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
     if (!user) {
       return res.status(400).json({ success: false, message: 'User not found' });
     }
-    // if password
-    const newValue = {};
     // check if fullName
     if (fullName) {
       if (user.fullName !== fullName) {
         user.fullName = fullName;
-        // newValue = Object.assign(newValue, { fullName });
       }
     }
     // check if userName
@@ -259,16 +256,14 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
         // newValue = Object.assign(newValue, { userName });
       }
     }
-
+    // if phone number
     if (phoneNumber) {
       if (user.phoneNumber !== phoneNumber) {
         user.phoneNumber = phoneNumber;
         // newValue = Object.assign(newValue, { phoneNumber });
       }
     }
-
-    // const updatedUser = await UserModel.findByIdAndUpdate({ _id: id }, newValue, { new: true });
-
+    // if password
     if (password) {
       await user.generateHash(password);
     }
