@@ -9,7 +9,7 @@ export enum UserType {
 }
 
 class User extends Typegoose {
-  @prop({ required: true })
+  @prop()
   fullName: string;
 
   @prop({
@@ -23,7 +23,7 @@ class User extends Typegoose {
   })
   userName: string;
 
-  @prop({})
+  @prop()
   phoneNumber: number;
 
   @prop({ default: [] })

@@ -104,13 +104,12 @@ app.get('/', withAuthAdmin, async (req, res) => {
 app.post(
   '/',
   withAuthAdmin,
-  requires({ body: ['name', 'description', 'address'] }),
-  validateString('name'),
+  requires({ body: ['name', 'nameInKhmer'] }),
 
   async (req, res) => {
     try {
       // get this piece of info
-      const { name, description, address } = req.body;
+      const { name, nameInKhmer, description } = req.body;
       // get errors
       const errors = validationResult(req);
       // check for errors
@@ -129,8 +128,8 @@ app.post(
       }
       const companyProperties = {
         name,
+        nameInKhmer,
         description,
-        address,
       };
       const company = new CompanyModel(companyProperties);
       // save new company
@@ -150,46 +149,46 @@ app.post(
 /**
  * PATCH: Update a company `/company/:id`
  */
-// app.patch(
-//   '/:id',
-//   withAuth,
-//   requires({ params: ['id'], body: ['fullName', 'email', 'phoneNumber'] }),
-//   validateString('fullName'),
-//   validateString('email'),
-//   validateEmail('phoneNumber'),
-//   async (req, res) => {
-//     try {
-//       const { id } = req.params;
-//       const { fullName, email, photo, password, phoneNumber } = req.body;
-//       // if password
-//       let newValue = {
-//         fullName,
-//         email,
-//         phoneNumber,
-//       };
-//       // check if photo
-//       if (photo) {
-//         newValue = Object.assign(newValue, { photo });
-//       }
-//       const company = await companyModel.findByIdAndUpdate({ _id: id }, newValue, { new: true });
-//       if (!company) {
-//         return res.status(400).json({ success: false, message: 'company not found' });
-//       }
-//       if (password) {
-//         await company.generateHash(password);
-//       }
-//       await company.save();
-//       return res.json({
-//         company,
-//         success: true,
-//         message: 'Update successful!',
-//       });
-//     } catch (e) {
-//       // send errors
-//       return res.status(500).json({ success: false, message: e });
-//     }
-//   },
-// );
+app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, nameInKhmer, description } = req.body;
+
+    const company = await CompanyModel.findOne({ _id: id });
+    if (!company) {
+      return res.status(400).json({ success: false, message: 'Company not found' });
+    }
+
+    if (name) {
+      if (company.name !== name) {
+        company.name = name;
+      }
+    }
+
+    if (nameInKhmer) {
+      if (company.nameInKhmer !== nameInKhmer) {
+        company.nameInKhmer = nameInKhmer;
+      }
+    }
+
+    if (description) {
+      if (company.description !== description) {
+        company.description = description;
+      }
+    }
+
+    await company.save();
+
+    return res.json({
+      company,
+      success: true,
+      message: 'Update successful!',
+    });
+  } catch (e) {
+    // send errors
+    return res.status(500).json({ success: false, message: e });
+  }
+});
 
 // /**
 //  * DELETE: Remove a company `/company/:id`

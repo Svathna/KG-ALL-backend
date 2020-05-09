@@ -9,9 +9,6 @@ export enum RequestStatus {
 
 class Request extends Typegoose {
   @prop({ required: true })
-  title: string;
-
-  @prop({ required: true })
   description: string;
 
   @prop({

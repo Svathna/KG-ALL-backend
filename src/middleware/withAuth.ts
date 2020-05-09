@@ -12,7 +12,7 @@ async function withAuth(req: Request, res: Response, next: NextFunction) {
     try {
       const tokenObj = jwt.verify(token, process.env.JWT_SECRET as string) as any;
       if (tokenObj.id) {
-        const user = (await UserModel.findById(tokenObj.id)) as User;
+        const user = await UserModel.findById(tokenObj.id);
         if (!user) throw 'Invalid User';
         (req as any).user = user;
         next();
