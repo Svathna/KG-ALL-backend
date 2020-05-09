@@ -8,7 +8,6 @@ import User, { UserType } from '../../models/definitions/User';
 import { validateString } from '../../middleware/validateString';
 import { validatePassword } from '../../middleware/validatePassword';
 import { UserModel } from '../../models';
-import { validateUserType } from '../../middleware/validateUserType';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 const { validationResult } = require('express-validator/check');
 // get the router
@@ -73,7 +72,7 @@ app.post('/admin/login', requires({ body: ['userName', 'password'] }), async (re
   // try
   try {
     // find the user and don't return the isAdmin flag
-    const user = (await UserModel.findOne({ userName, deleted: false })) as InstanceType<User>;
+    const user = await UserModel.findOne({ userName, deleted: false });
     // sanity check for user
     if (!user) {
       // error out
@@ -171,9 +170,7 @@ app.post(
         return res.status(422).json({ errors: errors.array() });
       }
       // find the user and don't return the isAdmin flag
-      const existUser = (await UserModel.findOne({ userName, deleted: false })) as InstanceType<
-        User
-      >;
+      const existUser = await UserModel.findOne({ userName, deleted: false });
       // sanity check for existing user
       if (existUser) {
         // send errors

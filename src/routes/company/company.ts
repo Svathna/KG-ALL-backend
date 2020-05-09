@@ -2,17 +2,11 @@ import { Router } from 'express';
 const mongoose = require('mongoose');
 import requires from '../../middleware/requires';
 const _ = require('lodash');
-import { withAuth } from '../../middleware/withAuth';
 import { InstanceType } from 'typegoose';
 import company from '../../models/definitions/company';
-import { validateString } from '../../middleware/validateString';
-import { validateEmail } from '../../middleware/validateEmail';
-import { validatePassword } from '../../middleware/validatePassword';
 import { CompanyModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 const { validationResult } = require('express-validator/check');
-const cloudinary = require('cloudinary').v2;
-const upload = require('../../config/multer');
 // get the router
 const app = Router();
 
@@ -154,7 +148,7 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
     const { id } = req.params;
     const { name, nameInKhmer, description } = req.body;
 
-    const company = await CompanyModel.findOne({ _id: id });
+    const company = await CompanyModel.findOne({ _id: id, deleted: false });
     if (!company) {
       return res.status(400).json({ success: false, message: 'Company not found' });
     }
@@ -193,33 +187,27 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
 // /**
 //  * DELETE: Remove a company `/company/:id`
 //  */
-// app.delete('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
-//   const { id } = req.params;
-//   try {
-//     // try deleting
-//     const companyDeleted = await companyModel.findOne({ _id: id, deleted: false });
-//     // sanity check for company deleted
-//     if (!companyDeleted) return res.status(400).json({ success: false, message: 'company not found' });
-//     // respond if success
-//     // soft delete this company
-//     const myQuery = { _id: id };
-//     const newValue = { $set: { deleted: true } };
-//     await companyModel.updateOne(myQuery, newValue, err => {
-//       if (err) {
-//         return res.json({
-//           success: false,
-//           message: "Can't delete",
-//         });
-//       }
-//       return res.json({
-//         success: true,
-//         message: 'company deleted',
-//       });
-//     });
-//   } catch (e) {
-//     // send errors
-//     return res.status(500).json({ success: false, message: e });
-//   }
-// });
+app.delete('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res) => {
+  const { id } = req.params;
+  try {
+    // try deleting
+    const company = await CompanyModel.findOne({ _id: id, deleted: false });
+    // sanity check for company deleted
+    if (!company) return res.status(400).json({ success: false, message: 'Company not found' });
+
+    // soft delete this company
+    company.deleted = true;
+
+    await company.save();
+
+    return res.json({
+      success: true,
+      message: 'Company deleted',
+    });
+  } catch (e) {
+    // send errors
+    return res.status(500).json({ success: false, message: e });
+  }
+});
 
 export default app;
