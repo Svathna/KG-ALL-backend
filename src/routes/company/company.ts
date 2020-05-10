@@ -4,8 +4,11 @@ import requires from '../../middleware/requires';
 const _ = require('lodash');
 import { InstanceType } from 'typegoose';
 import company from '../../models/definitions/company';
-import { CompanyModel } from '../../models';
+import { CompanyModel, UserModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
+import { withAuth } from '../../middleware/withAuth';
+import User from '../../models/definitions/User';
+import company from '../../models/definitions/company';
 const { validationResult } = require('express-validator/check');
 // get the router
 const app = Router();
@@ -44,14 +47,31 @@ app.get('/', withAuthAdmin, async (req, res) => {
 // /**
 //  * GET: Get current company `/company/current`
 //  */
-// app.get('/current', withAuth, (req, res) => {
-//   // get company from req acquired in with auth middleware
-//   const company = (req as any).company as InstanceType<company>;
-//   // sanity check for company
-//   if (!company) return res.status(400).json({ success: false, message: "Can't get current company" });
-//   // send the company back
-//   return res.json({ success: true, message: company.getcompanysafe() });
-// });
+app.get('/current', withAuth, async (req, res) => {
+  // get company from req acquired in with auth middleware
+  try {
+    const userId = (req as any).user.id;
+    const user = await UserModel.findOne({ _id: userId, deleted: false }).populate({
+      path: 'company',
+      match: { deleted: false },
+    });
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "Can't get current company" });
+    }
+
+    const company = user.company;
+
+    // sanity check for company
+    if (!company) {
+      return res.status(400).json({ success: false, message: "Can't get current company" });
+    }
+    // send the company back
+    return res.json({ success: true, company });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error });
+  }
+});
 
 // /**
 //  * POST: Login a company `/company/login`
