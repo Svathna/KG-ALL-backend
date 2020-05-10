@@ -7,8 +7,6 @@ import company from '../../models/definitions/company';
 import { CompanyModel, UserModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 import { withAuth } from '../../middleware/withAuth';
-import User from '../../models/definitions/User';
-import company from '../../models/definitions/company';
 const { validationResult } = require('express-validator/check');
 // get the router
 const app = Router();
@@ -32,17 +30,19 @@ app.get('/', withAuthAdmin, async (req, res) => {
 /**
  * GET: Get one company `/company/:id`
  */
-// app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
-//   const { id } = req.params;
-//   // get company with id
-//   const company = await companyModel.findOne({ _id: id, deleted: false });
-//   // sanity check for company
-//   if (!company) {
-//     return res.status(400).json({ success: false, message: 'companys do not exist in the Database' });
-//   }
-//   // send the company back
-//   return res.json({ company, success: true });
-// });
+app.get('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res) => {
+  const { id } = req.params;
+  // get company with id
+  const company = await CompanyModel.findOne({ _id: id, deleted: false });
+  // sanity check for company
+  if (!company) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'companys do not exist in the Database' });
+  }
+  // send the company back
+  return res.json({ company, success: true });
+});
 
 // /**
 //  * GET: Get current company `/company/current`
