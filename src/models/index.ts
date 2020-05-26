@@ -4,7 +4,7 @@ import Company from './definitions/Company';
 import Request from './definitions/Request';
 import Document from './definitions/Document';
 import Moc from './definitions/Moc';
-import Vat from './definitions/Vat';
+import Dot from './definitions/Dot';
 import TaxHistory from './definitions/TaxHistory';
 
 const schema: { schemaOptions: SchemaOptions } = {
@@ -17,5 +17,5 @@ export const CompanyModel = new Company().getModelForClass(Company, schema);
 export const RequestModel = new Request().getModelForClass(Request, schema);
 export const DocumentModel = new Document().getModelForClass(Document, schema);
 export const MocModel = new Moc().getModelForClass(Moc, schema);
-export const VatModel = new Vat().getModelForClass(Vat, schema);
+export const DotModel = new Dot().getModelForClass(Dot, schema);
 export const TaxHistoryModel = new TaxHistory().getModelForClass(TaxHistory, schema);
