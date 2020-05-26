@@ -51,7 +51,7 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
 /**
  * GET: Get current user `/user/current`
  */
-app.get('/current', withAuth, (req, res) => {
+app.get('/current/safe', withAuth, (req, res) => {
   // get user from req acquired in with auth middleware
   const user = (req as any).user as InstanceType<User>;
   // sanity check for user

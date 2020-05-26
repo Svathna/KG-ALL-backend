@@ -47,7 +47,7 @@ app.get('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res) =>
 // /**
 //  * GET: Get current company `/company/current`
 //  */
-app.get('/current', withAuth, async (req, res) => {
+app.get('/current/safe', withAuth, async (req, res) => {
   // get company from req acquired in with auth middleware
   try {
     const userId = (req as any).user.id;
