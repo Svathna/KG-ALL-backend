@@ -1,6 +1,6 @@
 import { Typegoose, prop, Ref } from 'typegoose';
 import Moc from './Moc';
-import Vat from './Vat';
+import Dot from './Dot';
 import TaxHistory from './TaxHistory';
 
 class Company extends Typegoose {
@@ -16,8 +16,8 @@ class Company extends Typegoose {
   @prop({ ref: Moc })
   moc: Ref<Moc>;
 
-  @prop({ ref: Vat })
-  vat: Ref<Vat>;
+  @prop({ ref: Dot })
+  dot: Ref<Dot>;
 
   @prop({ ref: TaxHistory })
   taxHistory: Ref<TaxHistory>;
