@@ -14,10 +14,10 @@ class Company extends Typegoose {
   description: string;
 
   @prop({ ref: Moc })
-  moc: Ref<Moc>;
+  MOC: Ref<Moc>;
 
   @prop({ ref: Dot })
-  dot: Ref<Dot>;
+  DOT: Ref<Dot>;
 
   @prop({ ref: TaxHistory })
   taxHistory: Ref<TaxHistory>;
