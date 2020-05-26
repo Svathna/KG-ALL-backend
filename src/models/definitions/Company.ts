@@ -1,7 +1,7 @@
 import { Typegoose, prop, Ref } from 'typegoose';
 import Moc from './Moc';
 import Vat from './Vat';
-import Tax from './Tax';
+import TaxHistory from './TaxHistory';
 
 class Company extends Typegoose {
   @prop({ required: true })
@@ -19,8 +19,8 @@ class Company extends Typegoose {
   @prop({ ref: Vat })
   vat: Ref<Vat>;
 
-  @prop({ ref: Tax })
-  tax: Ref<Tax>;
+  @prop({ ref: TaxHistory })
+  taxHistory: Ref<TaxHistory>;
 
   @prop({ required: true, default: false })
   deleted: boolean;
