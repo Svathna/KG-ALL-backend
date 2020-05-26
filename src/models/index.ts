@@ -5,7 +5,7 @@ import Request from './definitions/Request';
 import Document from './definitions/Document';
 import Moc from './definitions/Moc';
 import Vat from './definitions/Vat';
-import Tax from './definitions/Tax';
+import TaxHistory from './definitions/TaxHistory';
 
 const schema: { schemaOptions: SchemaOptions } = {
   schemaOptions: { timestamps: { createdAt: 'createdAt', updatedAt: 'createdAt' } },
@@ -18,4 +18,4 @@ export const RequestModel = new Request().getModelForClass(Request, schema);
 export const DocumentModel = new Document().getModelForClass(Document, schema);
 export const MocModel = new Moc().getModelForClass(Moc, schema);
 export const VatModel = new Vat().getModelForClass(Vat, schema);
-export const TaxModel = new Tax().getModelForClass(Tax, schema);
+export const TaxHistoryModel = new TaxHistory().getModelForClass(TaxHistory, schema);
