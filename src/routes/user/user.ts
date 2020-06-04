@@ -7,7 +7,7 @@ import { InstanceType } from 'typegoose';
 import User, { UserType } from '../../models/definitions/User';
 import { validateString } from '../../middleware/validateString';
 import { validatePassword } from '../../middleware/validatePassword';
-import { UserModel } from '../../models';
+import { UserModel, CompanyModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 const { validationResult } = require('express-validator/check');
 // get the router
@@ -18,10 +18,7 @@ const app = Router();
  */
 app.get('/', withAuthAdmin, async (req, res) => {
   // get user from req acquired in with auth middleware
-  const users = await UserModel.find({ deleted: false, type: 2 }).populate({
-    path: 'company',
-    match: { deleted: false },
-  });
+  const users = await UserModel.find({ deleted: false, type: 2 });
   // sanity check for user
   if (users.length === 0) {
     return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
@@ -36,10 +33,7 @@ app.get('/', withAuthAdmin, async (req, res) => {
 app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
   const { id } = req.params;
   // get user with id
-  const user = await UserModel.findOne({ _id: id, deleted: false }).populate({
-    path: 'company',
-    match: { deleted: false },
-  });
+  const user = await UserModel.findOne({ _id: id, deleted: false });
   // sanity check for user
   if (!user) {
     return res.status(400).json({ success: false, message: 'Users do not exist in the Database' });
@@ -115,10 +109,7 @@ app.post('/login', requires({ body: ['userName', 'password'] }), async (req, res
   // try
   try {
     // find the user and don't return the isAdmin flag
-    const user = await UserModel.findOne({ userName, deleted: false }).populate({
-      path: 'company',
-      match: { deleted: false },
-    });
+    const user = await UserModel.findOne({ userName, deleted: false });
     // sanity check for user
     if (!user) {
       // error out
@@ -136,9 +127,23 @@ app.post('/login', requires({ body: ['userName', 'password'] }), async (req, res
       await user.save();
     }
 
+    const company = await CompanyModel.aggregate([
+      {
+        $unwind: {
+          path: '$user',
+        },
+      },
+      { $match: { user: user._id } },
+    ]);
+
+    if (company.length === 0) {
+      return res.status(400).json({ success: false, message: 'User not found' });
+    }
+
     // return the user
     return res.json({
       user: user.toJSON(),
+      company: company[0],
       success: true,
       token: await user.getJWT(),
     });
@@ -182,19 +187,27 @@ app.post(
         password,
         type: UserType.NORMAL_USER,
         phoneNumber,
-        company,
       };
       const user = new UserModel(userProperties);
       // generate hash from password
       await user.generateHash(password);
       // save new user
       await user.save();
+
+      const companyExist = await CompanyModel.findById({ _id: company });
+      // sanity check
+      if (companyExist) {
+        companyExist.user = user.id;
+
+        await companyExist.save();
+      }
+
       // return success
       return res.json({
         user,
         success: true,
         token: await user.getJWT(),
-        message: 'User created',
+        message: 'User registered',
       });
     } catch (e) {
       return res.status(500).json({ success: false, message: e });

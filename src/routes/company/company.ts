@@ -16,7 +16,10 @@ const app = Router();
  */
 app.get('/', withAuthAdmin, async (req, res) => {
   // get company from req acquired in with auth middleware
-  const companys = await CompanyModel.find({ deleted: false });
+  const companys = await CompanyModel.find({ deleted: false }).populate({
+    path: 'user',
+    match: { deleted: false },
+  });
   // sanity check for company
   if (companys.length === 0) {
     return res
@@ -30,10 +33,15 @@ app.get('/', withAuthAdmin, async (req, res) => {
 /**
  * GET: Get one company `/company/:id`
  */
-app.get('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res) => {
+app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
   const { id } = req.params;
   // get company with id
-  const company = await CompanyModel.findOne({ _id: id, deleted: false });
+  const company = await CompanyModel.findOne({ _id: id, deleted: false }).populate([
+    'user',
+    'MOC',
+    'DOT',
+    'taxHistory',
+  ]);
   // sanity check for company
   if (!company) {
     return res
@@ -49,28 +57,21 @@ app.get('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res) =>
 //  */
 app.get('/current/safe', withAuth, async (req, res) => {
   // get company from req acquired in with auth middleware
-  try {
-    const userId = (req as any).user.id;
-    const user = await UserModel.findOne({ _id: userId, deleted: false }).populate({
-      path: 'company',
-      match: { deleted: false },
-    });
-
-    if (!user) {
-      return res.status(400).json({ success: false, message: "Can't get current company" });
-    }
-
-    const company = user.company;
-
-    // sanity check for company
-    if (!company) {
-      return res.status(400).json({ success: false, message: "Can't get current company" });
-    }
-    // send the company back
-    return res.json({ success: true, company });
-  } catch (error) {
-    return res.status(400).json({ success: false, message: error });
-  }
+  // try {
+  //   const userId = (req as any).user.id;
+  //   const user = await UserModel.findOne({ _id: userId, deleted: false });
+  //   if (!user) {
+  //     return res.status(400).json({ success: false, message: "Can't get current company" });
+  //   }
+  //   // sanity check for company
+  //   if (!company) {
+  //     return res.status(400).json({ success: false, message: "Can't get current company" });
+  //   }
+  //   // send the company back
+  //   return res.json({ success: true, company });
+  // } catch (error) {
+  //   return res.status(400).json({ success: false, message: error });
+  // }
 });
 
 // /**

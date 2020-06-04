@@ -1,7 +1,6 @@
 import { Typegoose, prop, InstanceType, instanceMethod, Ref } from 'typegoose';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import Company from './Company';
 
 export enum UserType {
   ADMIN = 1,
@@ -31,9 +30,6 @@ class User extends Typegoose {
 
   @prop({ required: true })
   password: string;
-
-  @prop({ ref: Company })
-  company?: Ref<Company>;
 
   @prop({ required: true, default: false })
   deleted: boolean;
