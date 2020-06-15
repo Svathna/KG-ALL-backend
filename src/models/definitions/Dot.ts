@@ -23,7 +23,7 @@ class Dot extends Typegoose {
   bankAccountNumber: number;
 
   @prop({ required: true })
-  taxCardNumber: string;
+  taxationCardNumber: string;
 
   @prop({ required: true })
   phoneNumber: string;

@@ -7,6 +7,7 @@ import company from '../../models/definitions/company';
 import { CompanyModel, UserModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 import { withAuth } from '../../middleware/withAuth';
+import User, { UserType } from '../../models/definitions/User';
 const { validationResult } = require('express-validator/check');
 // get the router
 const app = Router();
@@ -16,10 +17,12 @@ const app = Router();
  */
 app.get('/', withAuthAdmin, async (req, res) => {
   // get company from req acquired in with auth middleware
-  const companys = await CompanyModel.find({ deleted: false }).populate({
-    path: 'user',
-    match: { deleted: false },
-  });
+  const companys = await CompanyModel.find({ deleted: false })
+    .populate({
+      path: 'user',
+      match: { deleted: false },
+    })
+    .sort({ createdAt: -1 });
   // sanity check for company
   if (companys.length === 0) {
     return res
@@ -34,22 +37,27 @@ app.get('/', withAuthAdmin, async (req, res) => {
  * GET: Get one company `/company/:id`
  */
 app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
-  const { id } = req.params;
-  // get company with id
-  const company = await CompanyModel.findOne({ _id: id, deleted: false }).populate([
-    'user',
-    'MOC',
-    'DOT',
-    'taxHistory',
-  ]);
-  // sanity check for company
-  if (!company) {
-    return res
-      .status(400)
-      .json({ success: false, message: 'companys do not exist in the Database' });
+  try {
+    const { id } = req.params;
+    // get company with id
+    const company = await CompanyModel.findOne({ _id: id, deleted: false }).populate([
+      'user',
+      'MOC',
+      'DOT',
+      'taxHistory',
+      'docs',
+    ]);
+    // sanity check for company
+    if (!company) {
+      return res
+        .status(400)
+        .json({ success: false, message: 'companys do not exist in the Database' });
+    }
+    // send the company back
+    return res.json({ company, success: true, message: 'Get company success' });
+  } catch (error) {
+    return res.status(400).json({ success: false, message: error });
   }
-  // send the company back
-  return res.json({ company, success: true });
 });
 
 // /**
@@ -119,12 +127,20 @@ app.get('/current/safe', withAuth, async (req, res) => {
 app.post(
   '/',
   withAuthAdmin,
-  requires({ body: ['name', 'nameInKhmer'] }),
+  requires({ body: ['name', 'nameInKhmer', 'fullName', 'phoneNumber', 'userName', 'password'] }),
 
   async (req, res) => {
     try {
       // get this piece of info
-      const { name, nameInKhmer, description } = req.body;
+      const {
+        name,
+        nameInKhmer,
+        description,
+        fullName,
+        phoneNumber,
+        userName,
+        password,
+      } = req.body;
       // get errors
       const errors = validationResult(req);
       // check for errors
@@ -133,20 +149,37 @@ app.post(
         return res.status(422).json({ errors: errors.array() });
       }
       // find the company and don't return the isAdmin flag
-      const existcompany = (await CompanyModel.findOne({ name, deleted: false })) as InstanceType<
-        company
-      >;
+      const existcompany = await CompanyModel.findOne({ name, deleted: false });
       // sanity check for existing company
       if (existcompany) {
         // send errors
-        return res.status(400).json({ success: false, message: 'Name is in use' });
+        return res.status(400).json({ success: false, message: 'Company name is in use' });
       }
+
+      const existUser = await UserModel.findOne({ userName, delete: false });
+      // sanity check
+      if (existUser) {
+        // send errors
+        return res.status(400).json({ success: false, message: 'Username is in use' });
+      }
+
       const companyProperties = {
         name,
         nameInKhmer,
         description,
       };
+      const userProperties = {
+        fullName,
+        phoneNumber,
+        userName,
+        password,
+        type: UserType.NORMAL_USER,
+      };
       const company = new CompanyModel(companyProperties);
+      const user = new UserModel(userProperties);
+      // save new user
+      await user.save();
+      company.user = user.id;
       // save new company
       await company.save();
       // return success
@@ -167,7 +200,7 @@ app.post(
 app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, nameInKhmer, description } = req.body;
+    const { name, nameInKhmer, description, fullName, phoneNumber, userName, password } = req.body;
 
     const company = await CompanyModel.findOne({ _id: id, deleted: false });
     if (!company) {
@@ -191,8 +224,34 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
         company.description = description;
       }
     }
-
+    // save company
     await company.save();
+
+    if (fullName || phoneNumber || userName || password) {
+      const user = await UserModel.findOne({ _id: company.user });
+      // sanity check
+      if (!user) {
+        return res.status(400).json({ success: false, message: 'User not found' });
+      }
+
+      if (fullName && fullName !== user.fullName) {
+        user.fullName = fullName;
+      }
+
+      if (phoneNumber && phoneNumber !== user.phoneNumber) {
+        user.phoneNumber = phoneNumber;
+      }
+
+      if (userName && userName !== user.userName) {
+        user.userName = userName;
+      }
+
+      if (password) {
+        await user.generateHash(password);
+      }
+      // save user
+      await user.save();
+    }
 
     return res.json({
       company,

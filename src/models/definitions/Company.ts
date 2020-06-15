@@ -3,6 +3,7 @@ import Moc from './Moc';
 import Dot from './Dot';
 import TaxHistory from './TaxHistory';
 import User from './User';
+import Document from './Document';
 
 class Company extends Typegoose {
   @prop({ required: true })
@@ -23,8 +24,11 @@ class Company extends Typegoose {
   @prop({ ref: Dot })
   DOT?: Ref<Dot>;
 
+  @prop({ ref: Doc })
+  docs: Ref<Doc>;
+
   @arrayProp({ itemsRef: TaxHistory })
-  taxHistory?: Ref<TaxHistory>[];
+  taxHistorys?: Ref<TaxHistory>[];
 
   @prop({ required: true, default: false })
   deleted: boolean;

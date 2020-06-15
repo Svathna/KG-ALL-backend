@@ -21,11 +21,14 @@ class Moc extends Typegoose {
   @prop({ required: true })
   capital: number;
 
-  @prop({ required: true })
+  @prop()
   dateOfBTV: Date;
 
   @prop({})
-  mocUsernamePasswordLogin: UsernamePasworrd;
+  mocUsernameLogin: string;
+
+  @prop({})
+  mocPasswordLogin: string;
 
   @prop({ required: true, default: false })
   deleted: boolean;
