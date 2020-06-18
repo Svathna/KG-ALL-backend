@@ -3,7 +3,7 @@ import Moc from './Moc';
 import Dot from './Dot';
 import TaxHistory from './TaxHistory';
 import User from './User';
-import Document from './Document';
+import Doc from './Doc';
 
 class Company extends Typegoose {
   @prop({ required: true })

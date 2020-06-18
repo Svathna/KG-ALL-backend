@@ -2,7 +2,7 @@ import { SchemaOptions } from 'mongoose';
 import User from './definitions/User';
 import Company from './definitions/Company';
 import Request from './definitions/Request';
-import Document from './definitions/Document';
+import Doc from './definitions/Doc';
 import Moc from './definitions/Moc';
 import Dot from './definitions/Dot';
 import TaxHistory from './definitions/TaxHistory';
