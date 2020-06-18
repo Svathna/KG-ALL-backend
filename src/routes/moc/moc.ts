@@ -37,7 +37,8 @@ app.post(
       'mocNumber',
       'notedDate',
       'capital',
-      // 'dateOfBTV',
+      // 'annualTranscriptMaintenanceDate',
+      'companyType',
       'mocUsernameLogin',
       'mocPasswordLogin',
       'companyId',
@@ -51,8 +52,9 @@ app.post(
         mocNumber,
         notedDate,
         capital,
-        // dateOfBTV,
+        // annualTranscriptMaintenanceDate,
         companyId,
+        companyType,
         mocUsernameLogin,
         mocPasswordLogin,
       } = req.body;
@@ -77,7 +79,8 @@ app.post(
         mocNumber,
         notedDate,
         capital,
-        // dateOfBTV,
+        // annualTranscriptMaintenanceDate,
+        companyType,
         mocUsernameLogin,
         mocPasswordLogin,
       };
@@ -100,7 +103,7 @@ app.post(
 );
 
 /**
- * POST: Update a moc to company `/moc`
+ * PATCH: Update a moc to company `/moc`
  */
 app.patch(
   '/:id',
@@ -115,7 +118,8 @@ app.patch(
         mocNumber,
         notedDate,
         capital,
-        dateOfBTV,
+        companyType,
+        annualTranscriptMaintenanceDate,
         mocUsernameLogin,
         mocPasswordLogin,
       } = req.body;
@@ -148,8 +152,11 @@ app.patch(
         moc.capital = capital;
       }
 
-      if (dateOfBTV && dateOfBTV !== moc.dateOfBTV) {
-        moc.dateOfBTV = dateOfBTV;
+      if (
+        annualTranscriptMaintenanceDate &&
+        annualTranscriptMaintenanceDate !== moc.annualTranscriptMaintenanceDate
+      ) {
+        moc.annualTranscriptMaintenanceDate = annualTranscriptMaintenanceDate;
       }
 
       if (mocUsernameLogin && mocUsernameLogin !== moc.mocUsernameLogin) {
@@ -158,6 +165,10 @@ app.patch(
 
       if (mocPasswordLogin && mocPasswordLogin !== moc.mocPasswordLogin) {
         moc.mocPasswordLogin = mocPasswordLogin;
+      }
+
+      if (companyType && companyType !== moc.companyType) {
+        moc.companyType = companyType;
       }
 
       await moc.save();

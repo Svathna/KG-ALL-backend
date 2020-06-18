@@ -22,7 +22,14 @@ class Moc extends Typegoose {
   capital: number;
 
   @prop()
-  dateOfBTV: Date;
+  // dateOfBTV: Date;
+  annualTranscriptMaintenanceDate: Date;
+
+  @prop({
+    enum: CompanyType,
+    required: true,
+  })
+  companyType?: CompanyType;
 
   @prop({})
   mocUsernameLogin: string;
