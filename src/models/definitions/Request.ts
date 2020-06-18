@@ -18,7 +18,7 @@ class Request extends Typegoose {
   status?: RequestStatus;
 
   @prop({ ref: Company, required: true })
-  compnay: Ref<Company>;
+  company: Ref<Company>;
 
   @prop({ required: true, default: false })
   deleted: boolean;
