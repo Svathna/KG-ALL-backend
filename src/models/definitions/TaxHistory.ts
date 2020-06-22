@@ -1,23 +1,13 @@
-import { Typegoose, prop } from 'typegoose';
+import { Typegoose, prop, arrayProp } from 'typegoose';
+import { TaxPerMonth } from '../interfaces/tax-per-month.interface';
+import { TaxPerYear } from '../interfaces/tax-per-year.interface';
 
 class TaxHistory extends Typegoose {
-  @prop({ required: true })
-  revenue: number;
+  @arrayProp({ required: true, items: TaxPerMonth })
+  taxPerMonths: TaxPerMonth[];
 
-  @prop({ required: true })
-  spending: number;
-
-  @prop({ required: true })
-  paidAmout: number;
-
-  @prop()
-  others: string;
-
-  @prop({ required: true })
-  month: string;
-
-  @prop({ required: true })
-  year: number;
+  @arrayProp({ required: true, items: TaxPerYear })
+  taxPerYears: TaxPerYear[];
 
   @prop({ required: true, default: false })
   deleted: boolean;

@@ -15,7 +15,7 @@ class Request extends Typegoose {
     enum: RequestStatus,
     default: RequestStatus.PENDING,
   })
-  status?: RequestStatus;
+  status: RequestStatus;
 
   @prop({ ref: Company, required: true })
   company: Ref<Company>;

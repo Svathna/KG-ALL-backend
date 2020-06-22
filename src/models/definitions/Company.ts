@@ -27,8 +27,8 @@ class Company extends Typegoose {
   @prop({ ref: Doc })
   docs: Ref<Doc>;
 
-  @arrayProp({ itemsRef: TaxHistory })
-  taxHistorys?: Ref<TaxHistory>[];
+  @prop({ ref: TaxHistory })
+  taxHistory?: Ref<TaxHistory>;
 
   @prop({ required: true, default: false })
   deleted: boolean;
