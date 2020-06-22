@@ -13,7 +13,7 @@ export interface UsernamePasworrd {
 
 class Moc extends Typegoose {
   @prop({ required: true })
-  mocNumber: number;
+  mocNumber: string;
 
   @prop({ required: true })
   notedDate: Date;

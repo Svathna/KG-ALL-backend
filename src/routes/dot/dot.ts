@@ -20,7 +20,7 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
   const dot = await DotModel.findOne({ _id: id, deleted: false });
   // sanity check for company
   if (!dot) {
-    return res.status(400).json({ success: false, message: 'dot do not exist in the Database' });
+    return res.status(400).json({ success: false, message: 'Dot do not exist in the Database' });
   }
   // send the company back
   return res.json({ dot, success: true });
@@ -36,7 +36,7 @@ app.post(
     body: [
       'dotNumber',
       'notedDate',
-      'dotBranch',
+      'notedAtBranch',
       'address',
       'bankName',
       'bankAccountName',
@@ -53,7 +53,7 @@ app.post(
       const {
         dotNumber,
         notedDate,
-        dotBranch,
+        notedAtBranch,
         address,
         bankName,
         bankAccountName,
@@ -82,7 +82,7 @@ app.post(
       const dotProperties = {
         dotNumber,
         notedDate,
-        dotBranch,
+        notedAtBranch,
         address,
         bankName,
         bankAccountName,
@@ -123,7 +123,7 @@ app.patch(
       const {
         dotNumber,
         notedDate,
-        dotBranch,
+        notedAtBranch,
         address,
         bankName,
         bankAccountName,
@@ -156,8 +156,8 @@ app.patch(
         dot.notedDate = notedDate;
       }
 
-      if (dotBranch && dotBranch !== dot.dotBranch) {
-        dot.dotBranch = dotBranch;
+      if (notedAtBranch && notedAtBranch !== dot.notedAtBranch) {
+        dot.notedAtBranch = notedAtBranch;
       }
 
       if (address && address !== dot.address) {

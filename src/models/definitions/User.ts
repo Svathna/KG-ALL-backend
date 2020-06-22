@@ -70,7 +70,7 @@ class User extends Typegoose {
         },
         process.env.JWT_SECRET as string,
         {
-          expiresIn: '30d',
+          expiresIn: '1d',
         },
       );
     } catch (e) {
@@ -83,6 +83,7 @@ class User extends Typegoose {
     return {
       fullName: this.fullName,
       userName: this.userName,
+      phoneNumber: this.phoneNumber,
     };
   }
 }

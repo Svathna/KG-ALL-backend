@@ -12,18 +12,20 @@ const { validationResult } = require('express-validator/check');
 const app = Router();
 
 /**
- * GET: Get one moc `/moc/:id`
+ * GET: Get one doc `/moc/:id`
  */
 app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
   const { id } = req.params;
   // get moc with id
-  const moc = await MocModel.findOne({ _id: id, deleted: false });
+  const doc = await DocModel.findOne({ _id: id });
   // sanity check for company
-  if (!moc) {
-    return res.status(400).json({ success: false, message: 'moc do not exist in the Database' });
+  if (!doc) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Document do not exist in the Database' });
   }
   // send the company back
-  return res.json({ moc, success: true });
+  return res.json({ doc, success: true });
 });
 
 /**

@@ -2,13 +2,13 @@ import { Typegoose, prop, Ref } from 'typegoose';
 
 class Dot extends Typegoose {
   @prop({ required: true })
-  dotNumber: number;
+  dotNumber: string;
 
   @prop({ required: true })
   notedDate: Date;
 
   @prop({ required: true })
-  dotBranch: string;
+  notedAtBranch: string;
 
   @prop({ required: true })
   address: string;
@@ -20,13 +20,13 @@ class Dot extends Typegoose {
   bankAccountName: string;
 
   @prop({ required: true })
-  bankAccountNumber: number;
+  bankAccountNumber: string;
 
   @prop({ required: true })
   taxationCardNumber: string;
 
   @prop({ required: true })
-  phoneNumber: string;
+  phoneNumber: number;
 
   @prop({ required: true, default: false })
   deleted: boolean;

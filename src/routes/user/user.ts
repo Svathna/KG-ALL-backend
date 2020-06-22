@@ -45,15 +45,30 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
 /**
  * GET: Get current user `/user/current`
  */
-app.get('/current/safe', withAuth, (req, res) => {
+app.get('/current/safe', withAuth, async (req, res) => {
   // get user from req acquired in with auth middleware
   const user = (req as any).user as InstanceType<User>;
   // sanity check for user
   if (!user) return res.status(400).json({ success: false, message: "Can't get current user" });
+
+  const company = await CompanyModel.aggregate([
+    {
+      $unwind: {
+        path: '$user',
+      },
+    },
+    { $match: { user: user._id } },
+  ]);
+
+  if (company.length === 0) {
+    return res.status(400).json({ success: false, message: 'User not found' });
+  }
   // send the user back
   return res.json({
     success: true,
-    message: user.getUserSafe(),
+    user: user.getUserSafe(),
+    company: company[0],
+    message: 'Get user safe',
   });
 });
 
