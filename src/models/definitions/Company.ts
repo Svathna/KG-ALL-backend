@@ -27,7 +27,7 @@ class Company extends Typegoose {
   @prop({ ref: Doc })
   docs: Ref<Doc>;
 
-  @prop({ ref: TaxHistory })
+  @prop({ ref: TaxHistory, required: false })
   taxHistory?: Ref<TaxHistory>;
 
   @prop({ required: true, default: false })

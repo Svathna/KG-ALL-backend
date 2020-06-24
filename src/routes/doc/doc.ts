@@ -7,6 +7,7 @@ import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 import { withAuth } from '../../middleware/withAuth';
 import { MocModel, CompanyModel, DocModel } from '../../models';
 import Company from '../../models/definitions/Company';
+import { OtherDocument } from '../../models/definitions/Doc';
 const { validationResult } = require('express-validator/check');
 // get the router
 const app = Router();
@@ -29,7 +30,7 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
 });
 
 /**
- * POST: Add a moc to company `/moc`
+ * POST: Add a doc to company `/moc`
  */
 app.post(
   '/',
@@ -47,6 +48,9 @@ app.post(
         gdt_card,
         docId,
         companyId,
+        docUrl,
+        title,
+        titleInKhmer,
       } = req.body;
       // get errors
       const errors = validationResult(req);
@@ -101,6 +105,16 @@ app.post(
 
         if (gdt_card) {
           doc.gdt_card = gdt_card;
+        }
+
+        if (docUrl && title && titleInKhmer) {
+          const others: OtherDocument[] = doc.others ? [...doc.others] : [];
+          others.push({
+            docUrl,
+            title,
+            titleInKhmer,
+          });
+          doc.others = [...others];
         }
 
         await doc.save();

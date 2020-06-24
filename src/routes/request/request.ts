@@ -28,7 +28,7 @@ app.get('/', withAuthAdmin, async (req, res) => {
       match: { deleted: false },
     });
   // sanity check for user
-  if (requests.length === 0) {
+  if (!requests) {
     return res
       .status(400)
       .json({ success: false, message: 'Requests do not exist in the Database' });
