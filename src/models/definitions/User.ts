@@ -70,7 +70,7 @@ class User extends Typegoose {
         },
         process.env.JWT_SECRET as string,
         {
-          expiresIn: '1d',
+          expiresIn: '30d',
         },
       );
     } catch (e) {
