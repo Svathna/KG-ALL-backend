@@ -73,7 +73,7 @@ app.get('/company/:id', withAuth, requires({ params: ['id'] }), async (req, res)
       },
     },
     {
-      $match: { company: company._id, status: RequestStatus.PENDING },
+      $match: { company: company._id, deleted: false, status: RequestStatus.PENDING },
     },
     {
       $sort: { createdAt: -1 },
@@ -184,5 +184,29 @@ app.patch(
     }
   },
 );
+
+// /**
+//  * DELETE: Delete a request `/request/:id`
+//  */
+app.delete('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
+  const { id } = req.params;
+  try {
+    // try deleting
+    const request = await RequestModel.findOne({ _id: id, deleted: false });
+    // sanity check for company deleted
+    if (!request) return res.status(400).json({ success: false, message: 'Request not found' });
+
+    // soft delete this company
+    await RequestModel.findByIdAndUpdate(id, { deleted: true }, { new: true });
+
+    return res.json({
+      success: true,
+      message: 'Request deleted',
+    });
+  } catch (e) {
+    // send errors
+    return res.status(500).json({ success: false, message: e });
+  }
+});
 
 export default app;

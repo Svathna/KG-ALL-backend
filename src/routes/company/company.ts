@@ -277,9 +277,6 @@ app.delete('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res)
 
     // soft delete this company
     await CompanyModel.findByIdAndUpdate(id, { deleted: true }, { new: true });
-    // company.deleted = true;
-
-    // await company.save();
 
     return res.json({
       success: true,
