@@ -1,6 +1,8 @@
 export class TaxPerMonth {
+  year: string;
+  month: number;
   revenue: number;
   spending: number;
-  taxPaidAmout: number;
+  taxPaidAmount: number;
   others: string;
 }
