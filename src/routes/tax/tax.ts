@@ -176,7 +176,7 @@ app.patch(
           }
         }
 
-        if (existingDataIndex) {
+        if (existingDataIndex !== undefined) {
           taxPerMonths.splice(existingDataIndex, 1);
         }
       }
