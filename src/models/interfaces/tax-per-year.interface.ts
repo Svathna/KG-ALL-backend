@@ -1,4 +1,4 @@
 export class TaxPerYear {
-  taxPaidAmout: number;
+  taxPaidAmount: number;
   year: number;
 }

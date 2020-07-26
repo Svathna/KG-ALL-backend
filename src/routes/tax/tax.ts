@@ -9,6 +9,7 @@ import { MocModel, CompanyModel, TaxHistoryModel } from '../../models';
 import Company from '../../models/definitions/Company';
 import TaxHistory from '../../models/definitions/TaxHistory';
 import { TaxPerMonth } from '../../models/interfaces/tax-per-month.interface';
+import { TaxPerYear } from '../../models/interfaces/tax-per-year.interface';
 const { validationResult } = require('express-validator/check');
 // get the router
 const app = Router();
@@ -199,98 +200,84 @@ app.patch(
   },
 );
 
-// /**
-//  * POST: Add a taxPerYear to taxHistory`/tax`
-//  */
-// app.post(
-//   '/taxPerYear/:id',
-//   withAuthAdmin,
-//   requires({
-//     params: ['id'],
-//     body: [
-//       'taxPerYears',
-//     ],
-//   }),
+/**
+ * POST: Add a taxPerYear to taxHistory`/tax`
+ */
+app.post(
+  '/taxPerYear/:id',
+  withAuthAdmin,
+  requires({
+    params: ['id'],
+    body: ['taxPerYears'],
+  }),
 
-//   async (req, res) => {
-//     try {
-//       // get this piece of info
-//       const { id } = req.params;
-//       const {
-//         taxPerYears,
-//       } = req.body;
-//       // get errors
-//       const errors = validationResult(req);
-//       // check for errors
-//       if (!errors.isEmpty()) {
-//         // send errors
-//         return res.status(422).json({ errors: errors.array() });
-//       }
-//       // find the company and don't return the isAdmin flag
-//       const company = await CompanyModel.findOne({ _id: id, deleted: false });
-//       // sanity check
-//       if (!company) {
-//         return res.status(400).json({
-//           success: false,
-//           message: 'Invalid input',
-//         });
-//       }
+  async (req, res) => {
+    try {
+      // get this piece of info
+      const { id } = req.params;
+      const { taxPerYears } = req.body;
+      // get errors
+      const errors = validationResult(req);
+      // check for errors
+      if (!errors.isEmpty()) {
+        // send errors
+        return res.status(422).json({ errors: errors.array() });
+      }
+      // find the company and don't return the isAdmin flag
+      const company = await CompanyModel.findOne({ _id: id, deleted: false });
+      // sanity check
+      if (!company) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid input',
+        });
+      }
 
-//       let existingTaxHistory;
+      let existingTaxHistory;
 
-//       if (taxHistoryId) {
-//         existingTaxHistory = await TaxHistoryModel.findOne({ _id: taxHistoryId });
+      if (company.taxHistory) {
+        existingTaxHistory = await TaxHistoryModel.findOne({ _id: company.taxHistory });
 
-//         if (!existingTaxHistory) {
-//           return res.status(400).json({
-//             success: false,
-//             message: 'Invalid input',
-//           });
-//         }
-//       }
+        if (!existingTaxHistory) {
+          return res.status(400).json({
+            success: false,
+            message: 'Invalid input',
+          });
+        }
+      }
 
-//       const taxPerMonthProperties: TaxPerMonth = {
-//         year,
-//         month,
-//         revenue,
-//         spending,
-//         taxPaidAmount,
-//         others,
-//       };
+      taxPerYears.map((taxPerYear: TaxPerYear) => taxPerYear);
+      // sort
+      taxPerYears.sort((item1: TaxPerYear, item2: TaxPerYear) => item1.year - item2.year);
 
-//       if (existingTaxHistory) {
-//         const taxPerMonths = existingTaxHistory.taxPerMonths ? [...existingTaxHistory.taxPerMonths] : [];
-//         taxPerMonths.push(taxPerMonthProperties);
-//         existingTaxHistory.taxPerMonths = [...taxPerMonths];
+      if (existingTaxHistory) {
+        existingTaxHistory.taxPerYears = [...taxPerYears];
 
-//         await existingTaxHistory.save();
+        await existingTaxHistory.save();
 
-//         return res.json({
-//           taxHistory: existingTaxHistory,
-//           success: true,
-//           message: 'Tax per month added to company',
-//         });
-//       }
+        return res.json({
+          taxHistory: existingTaxHistory,
+          success: true,
+          message: 'Tax per year added to company',
+        });
+      }
 
-//       const taxPerMonths: TaxPerMonth[] = [];
-//       taxPerMonths.push(taxPerMonthProperties)
+      const taxHistory = new TaxHistoryModel({ taxPerYears });
+      await taxHistory.save();
 
-//       const taxHistory = new TaxHistoryModel(taxPerMonths);
-//       await taxHistory.save();
+      company.taxHistory = taxHistory.id;
+      await company.save();
 
-//       company.taxHistory = taxHistory.id;
-//       await company.save();
-
-//       // return success
-//       return res.json({
-//         taxHistory,
-//         success: true,
-//         message: 'TaxHistory added to company',
-//       });
-//     } catch (e) {
-//       return res.status(500).json({ success: false, message: e });
-//     }
-//   },
-// );
+      // return success
+      return res.json({
+        taxHistory,
+        success: true,
+        message: 'TaxHistory added to company',
+      });
+    } catch (e) {
+      return res.status(500).json({ success: false, message: e });
+    }
+  },
+);
 
 export default app;
