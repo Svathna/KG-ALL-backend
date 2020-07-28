@@ -55,8 +55,9 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
 /**
  * Get: Get request by company `/request/company/:id`
  */
-app.get('/company/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
+app.post('/company/:id', withAuth, requires({ params: ['id'], body: [] }), async (req, res) => {
   const { id } = req.params;
+  const { status } = req.body;
   // get request with id
   const company = await CompanyModel.findOne({ _id: id, deleted: false });
   // sanity check for company
@@ -66,6 +67,8 @@ app.get('/company/:id', withAuth, requires({ params: ['id'] }), async (req, res)
       .json({ success: false, message: 'Company do not exist in the Database' });
   }
 
+  const statusRequest = status ? status : RequestStatus.PENDING;
+
   const requests = await RequestModel.aggregate([
     {
       $unwind: {
@@ -73,7 +76,7 @@ app.get('/company/:id', withAuth, requires({ params: ['id'] }), async (req, res)
       },
     },
     {
-      $match: { company: company._id, deleted: false, status: RequestStatus.PENDING },
+      $match: { company: company._id, deleted: false, status: statusRequest },
     },
     {
       $sort: { createdAt: -1 },
