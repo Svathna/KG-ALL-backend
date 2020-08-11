@@ -8,7 +8,7 @@ import Dot from './definitions/Dot';
 import TaxHistory from './definitions/TaxHistory';
 
 const schema: { schemaOptions: SchemaOptions } = {
-  schemaOptions: { timestamps: { createdAt: 'createdAt', updatedAt: 'createdAt' } },
+  schemaOptions: { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } },
 };
 
 // tslint:disable:variable-name
