@@ -280,4 +280,53 @@ app.post(
   },
 );
 
+// /**
+//  * DELETE: Delete a request `/request/:id`
+//  */
+app.patch(
+  '/taxPerMonth/remove/:id',
+  withAuth,
+  requires({ params: ['id'], body: ['month'] }),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { month } = req.body;
+      // try deleting
+      const taxHistory = await TaxHistoryModel.findById({ _id: id });
+      // sanity check for company deleted
+      if (!taxHistory) return res.status(400).json({ success: false, message: 'Not found' });
+
+      const taxPerMonths = taxHistory.taxPerMonths ? [...taxHistory.taxPerMonths] : [];
+      // sanity check
+      if (taxPerMonths.length > 0) {
+        let existingDataIndex;
+        for (let index = 0; index < taxPerMonths.length; index++) {
+          if (taxPerMonths[index].month === month) {
+            existingDataIndex = index;
+            break;
+          }
+        }
+        // sanity check
+        if (existingDataIndex !== undefined) {
+          // taxPerMonths = [...taxPerMonths.slice(0, existingDataIndex), ...taxPerMonths.slice(existingDataIndex + 1)];
+          taxPerMonths.splice(existingDataIndex, 1);
+        }
+      }
+
+      taxHistory.taxPerMonths = [...taxPerMonths];
+
+      // saving
+      await taxHistory.save();
+
+      return res.json({
+        success: true,
+        message: 'Deleted',
+      });
+    } catch (e) {
+      // send errors
+      return res.status(500).json({ success: false, message: e });
+    }
+  },
+);
+
 export default app;

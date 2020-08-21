@@ -16,11 +16,14 @@ const app = Router();
 /**
  * GET: Get all request `/request`
  */
-app.get('/', withAuthAdmin, async (req, res) => {
+app.post('/', withAuthAdmin, requires({ body: [] }), async (req, res) => {
+  // get status
+  const { status } = req.body;
+  const statusRequest = status ? status : RequestStatus.PENDING;
   // get user from req acquired in with auth middleware
   const requests = await RequestModel.find({
     deleted: false,
-    status: RequestStatus.PENDING,
+    status: statusRequest,
   })
     .sort({ createdAt: -1 })
     .populate({
