@@ -6,6 +6,7 @@ import Doc from './definitions/Doc';
 import Moc from './definitions/Moc';
 import Dot from './definitions/Dot';
 import TaxHistory from './definitions/TaxHistory';
+import Service from './definitions/Service';
 
 const schema: { schemaOptions: SchemaOptions } = {
   schemaOptions: { timestamps: { createdAt: 'createdAt', updatedAt: 'updatedAt' } },
@@ -19,3 +20,4 @@ export const DocModel = new Doc().getModelForClass(Doc, schema);
 export const MocModel = new Moc().getModelForClass(Moc, schema);
 export const DotModel = new Dot().getModelForClass(Dot, schema);
 export const TaxHistoryModel = new TaxHistory().getModelForClass(TaxHistory, schema);
+export const ServiceModel = new Service().getModelForClass(Service, schema);
