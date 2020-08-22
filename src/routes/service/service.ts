@@ -85,4 +85,99 @@ app.post(
   },
 );
 
+/**
+ * PATCH: Update a company `/company/:id`
+ */
+app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (req, res) => {
+  try {
+    // need this
+    const { id } = req.params;
+    const {
+      threshold,
+      moreThanThresholdPrice,
+      lessThanThresholdPrice,
+      salaryTaxPrice,
+      patentTaxPrice,
+      trademarkTaxPrice,
+      propertyTaxPrice,
+      transportationTaxPrice,
+      docUrl,
+    } = req.body;
+
+    const existingService = await ServiceModel.findOne({ _id: id });
+    // sanity check
+    if (!existingService) {
+      return res.status(400).json({ success: false, message: 'Service not found' });
+    }
+    // saniy check for threshold
+    if (threshold && threshold !== existingService.monthlyTaxReturnService.threshold) {
+      existingService.monthlyTaxReturnService.threshold = threshold;
+    }
+    // saniy check for moreThanThresholdPrice
+    if (
+      moreThanThresholdPrice &&
+      moreThanThresholdPrice !== existingService.monthlyTaxReturnService.moreThanThresholdPrice
+    ) {
+      existingService.monthlyTaxReturnService.moreThanThresholdPrice = moreThanThresholdPrice;
+    }
+    // saniy check for lessThanThresholdPrice
+    if (
+      lessThanThresholdPrice &&
+      lessThanThresholdPrice !== existingService.monthlyTaxReturnService.lessThanThresholdPrice
+    ) {
+      existingService.monthlyTaxReturnService.lessThanThresholdPrice = lessThanThresholdPrice;
+    }
+    // saniy check for salaryTaxPrice
+    if (
+      salaryTaxPrice &&
+      salaryTaxPrice !== existingService.annualTaxReturnService.salaryTaxPrice
+    ) {
+      existingService.annualTaxReturnService.salaryTaxPrice = salaryTaxPrice;
+    }
+    // saniy check for patentTaxPrice
+    if (
+      patentTaxPrice &&
+      patentTaxPrice !== existingService.annualTaxReturnService.patentTaxPrice
+    ) {
+      existingService.annualTaxReturnService.patentTaxPrice = patentTaxPrice;
+    }
+    // saniy check for trademarkTaxPrice
+    if (
+      trademarkTaxPrice &&
+      trademarkTaxPrice !== existingService.annualTaxReturnService.trademarkTaxPrice
+    ) {
+      existingService.annualTaxReturnService.trademarkTaxPrice = trademarkTaxPrice;
+    }
+    // saniy check for propertyTaxPrice
+    if (
+      propertyTaxPrice &&
+      propertyTaxPrice !== existingService.annualTaxReturnService.propertyTaxPrice
+    ) {
+      existingService.annualTaxReturnService.propertyTaxPrice = propertyTaxPrice;
+    }
+    // saniy check for transportationTaxPrice
+    if (
+      transportationTaxPrice &&
+      transportationTaxPrice !== existingService.annualTaxReturnService.transportationTaxPrice
+    ) {
+      existingService.annualTaxReturnService.transportationTaxPrice = transportationTaxPrice;
+    }
+    // sanity check for docUrl
+    if (docUrl) {
+      existingService.docUrl = docUrl;
+    }
+
+    // saving service
+    await existingService.save();
+
+    return res.json({
+      service: existingService,
+      success: true,
+      message: 'Update successful!',
+    });
+  } catch (error) {
+    return res.status(500).json({ success: false, message: error });
+  }
+});
+
 export default app;
