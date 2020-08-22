@@ -1,13 +1,13 @@
 import { Typegoose, prop } from 'typegoose';
-import { MonthlyTaxReturn } from '../interfaces/monthly-tax-return.interface';
-import { AnnualTaxReturn } from '../interfaces/annual-tax-return.interface';
+import { MonthlyTaxReturnService } from '../interfaces/monthly-tax-return.interface';
+import { AnnualTaxReturnService } from '../interfaces/annual-tax-return.interface';
 
 class Service extends Typegoose {
   @prop({ required: true })
-  monthlyTaxReturn: MonthlyTaxReturn;
+  monthlyTaxReturnService: MonthlyTaxReturnService;
 
   @prop({ required: true })
-  AnnualTaxReturn: AnnualTaxReturn;
+  AnnualTaxReturnService: AnnualTaxReturnService;
 
   @prop({ required: true })
   docUrl: boolean;
