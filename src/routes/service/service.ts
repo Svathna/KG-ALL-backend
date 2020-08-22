@@ -6,6 +6,7 @@ import { MonthlyTaxReturnService } from '../../models/interfaces/monthly-tax-ret
 import { AnnualTaxReturnService } from '../../models/interfaces/annual-tax-return.interface';
 import { ServiceModel } from '../../models';
 import Service from '../../models/definitions/Service';
+import { withAuth } from '../../middleware/withAuth';
 const _ = require('lodash');
 const { validationResult } = require('express-validator/check');
 // get the router
@@ -86,7 +87,23 @@ app.post(
 );
 
 /**
- * PATCH: Update a company `/company/:id`
+ * GET: Get latest service `/service`
+ */
+app.get('/', async (req, res) => {
+  // get company from req acquired in with auth middleware
+  const services = await ServiceModel.find().sort({ createdAt: -1 });
+  // sanity check for company
+  if (services.length === 0) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Service doesn't exist in the Database" });
+  }
+  // send the company back
+  return res.json({ service: services[0], success: true, message: 'Success' });
+});
+
+/**
+ * PATCH: Update a service `/service/:id`
  */
 app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (req, res) => {
   try {
