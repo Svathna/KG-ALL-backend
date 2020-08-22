@@ -7,10 +7,10 @@ class Service extends Typegoose {
   monthlyTaxReturnService: MonthlyTaxReturnService;
 
   @prop({ required: true })
-  AnnualTaxReturnService: AnnualTaxReturnService;
+  annualTaxReturnService: AnnualTaxReturnService;
 
   @prop({ required: true })
-  docUrl: boolean;
+  docUrl: string;
 }
 
 export default Service;
