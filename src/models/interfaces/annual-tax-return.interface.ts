@@ -1,4 +1,4 @@
-export class AnnualTaxReturnService {
+export class AnnualTaxService {
   salaryTaxPrice: number;
   patentTaxPrice: number;
   trademarkTaxPrice: number;

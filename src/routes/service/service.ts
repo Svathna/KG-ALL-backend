@@ -2,11 +2,10 @@ import { Router } from 'express';
 const mongoose = require('mongoose');
 import requires from '../../middleware/requires';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
-import { MonthlyTaxReturnService } from '../../models/interfaces/monthly-tax-return.interface';
-import { AnnualTaxReturnService } from '../../models/interfaces/annual-tax-return.interface';
 import { ServiceModel } from '../../models';
-import Service from '../../models/definitions/Service';
 import { withAuth } from '../../middleware/withAuth';
+import { MonthlyTaxService } from '../../models/interfaces/monthly-tax-return.interface';
+import { AnnualTaxService } from '../../models/interfaces/annual-tax-return.interface';
 const _ = require('lodash');
 const { validationResult } = require('express-validator/check');
 // get the router
@@ -53,13 +52,13 @@ app.post(
         return res.status(422).json({ errors: errors.array() });
       }
       // need this
-      const monthlyTaxReturnService: MonthlyTaxReturnService = {
+      const monthlyTaxService: MonthlyTaxService = {
         threshold,
         moreThanThresholdPrice,
         lessThanThresholdPrice,
       };
       // need this
-      const annualTaxReturnService: AnnualTaxReturnService = {
+      const annualTaxService: AnnualTaxService = {
         salaryTaxPrice,
         patentTaxPrice,
         trademarkTaxPrice,
@@ -68,8 +67,8 @@ app.post(
       };
       // set data
       const service = new ServiceModel({
-        monthlyTaxReturnService,
-        annualTaxReturnService,
+        monthlyTaxService,
+        annualTaxService,
         docUrl,
       });
       // save new user
@@ -89,14 +88,12 @@ app.post(
 /**
  * GET: Get latest service `/service`
  */
-app.get('/', async (req, res) => {
+app.get('/', withAuth, async (req, res) => {
   // get company from req acquired in with auth middleware
   const services = await ServiceModel.find().sort({ createdAt: -1 });
   // sanity check for company
   if (services.length === 0) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Service doesn't exist in the Database" });
+    return res.json({ success: true, message: "Service doesn't exist in the Database" });
   }
   // send the company back
   return res.json({ service: services[0], success: true, message: 'Success' });
@@ -127,57 +124,51 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
       return res.status(400).json({ success: false, message: 'Service not found' });
     }
     // saniy check for threshold
-    if (threshold && threshold !== existingService.monthlyTaxReturnService.threshold) {
-      existingService.monthlyTaxReturnService.threshold = threshold;
+    if (threshold && threshold !== existingService.monthlyTaxService.threshold) {
+      existingService.monthlyTaxService.threshold = threshold;
     }
     // saniy check for moreThanThresholdPrice
     if (
       moreThanThresholdPrice &&
-      moreThanThresholdPrice !== existingService.monthlyTaxReturnService.moreThanThresholdPrice
+      moreThanThresholdPrice !== existingService.monthlyTaxService.moreThanThresholdPrice
     ) {
-      existingService.monthlyTaxReturnService.moreThanThresholdPrice = moreThanThresholdPrice;
+      existingService.monthlyTaxService.moreThanThresholdPrice = moreThanThresholdPrice;
     }
     // saniy check for lessThanThresholdPrice
     if (
       lessThanThresholdPrice &&
-      lessThanThresholdPrice !== existingService.monthlyTaxReturnService.lessThanThresholdPrice
+      lessThanThresholdPrice !== existingService.monthlyTaxService.lessThanThresholdPrice
     ) {
-      existingService.monthlyTaxReturnService.lessThanThresholdPrice = lessThanThresholdPrice;
+      existingService.monthlyTaxService.lessThanThresholdPrice = lessThanThresholdPrice;
     }
     // saniy check for salaryTaxPrice
-    if (
-      salaryTaxPrice &&
-      salaryTaxPrice !== existingService.annualTaxReturnService.salaryTaxPrice
-    ) {
-      existingService.annualTaxReturnService.salaryTaxPrice = salaryTaxPrice;
+    if (salaryTaxPrice && salaryTaxPrice !== existingService.annualTaxService.salaryTaxPrice) {
+      existingService.annualTaxService.salaryTaxPrice = salaryTaxPrice;
     }
     // saniy check for patentTaxPrice
-    if (
-      patentTaxPrice &&
-      patentTaxPrice !== existingService.annualTaxReturnService.patentTaxPrice
-    ) {
-      existingService.annualTaxReturnService.patentTaxPrice = patentTaxPrice;
+    if (patentTaxPrice && patentTaxPrice !== existingService.annualTaxService.patentTaxPrice) {
+      existingService.annualTaxService.patentTaxPrice = patentTaxPrice;
     }
     // saniy check for trademarkTaxPrice
     if (
       trademarkTaxPrice &&
-      trademarkTaxPrice !== existingService.annualTaxReturnService.trademarkTaxPrice
+      trademarkTaxPrice !== existingService.annualTaxService.trademarkTaxPrice
     ) {
-      existingService.annualTaxReturnService.trademarkTaxPrice = trademarkTaxPrice;
+      existingService.annualTaxService.trademarkTaxPrice = trademarkTaxPrice;
     }
     // saniy check for propertyTaxPrice
     if (
       propertyTaxPrice &&
-      propertyTaxPrice !== existingService.annualTaxReturnService.propertyTaxPrice
+      propertyTaxPrice !== existingService.annualTaxService.propertyTaxPrice
     ) {
-      existingService.annualTaxReturnService.propertyTaxPrice = propertyTaxPrice;
+      existingService.annualTaxService.propertyTaxPrice = propertyTaxPrice;
     }
     // saniy check for transportationTaxPrice
     if (
       transportationTaxPrice &&
-      transportationTaxPrice !== existingService.annualTaxReturnService.transportationTaxPrice
+      transportationTaxPrice !== existingService.annualTaxService.transportationTaxPrice
     ) {
-      existingService.annualTaxReturnService.transportationTaxPrice = transportationTaxPrice;
+      existingService.annualTaxService.transportationTaxPrice = transportationTaxPrice;
     }
     // sanity check for docUrl
     if (docUrl) {
