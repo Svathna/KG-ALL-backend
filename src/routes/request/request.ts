@@ -16,7 +16,7 @@ const app = Router();
 /**
  * GET: Get all request `/request`
  */
-app.post('/', withAuthAdmin, requires({ body: [] }), async (req, res) => {
+app.post('/alls', withAuthAdmin, requires({ body: [] }), async (req, res) => {
   // get status
   const { status } = req.body;
   const statusRequest = status ? status : RequestStatus.PENDING;
