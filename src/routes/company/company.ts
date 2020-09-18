@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 import requires from '../../middleware/requires';
 const _ = require('lodash');
 import { InstanceType } from 'typegoose';
-import company from '../../models/definitions/company';
 import { CompanyModel, UserModel } from '../../models';
 import { withAuthAdmin } from '../../middleware/withAuthAdmin';
 import { withAuth } from '../../middleware/withAuth';
