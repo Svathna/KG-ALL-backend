@@ -3,6 +3,21 @@
   "version": "1.0.0",
   "description": "Fresh node",
   "main": "index.js",
+  "compilerOptions": {
+    "target": "es2017",
+    "module": "commonjs",
+    "allowJs": true,
+    "checkJs": true,
+    "rootDir": "src",
+    "outDir": "build",
+    "sourceMap": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "strictPropertyInitialization": false
+  },
   "scripts": {
     "start": "node-ts src/server.ts",
     "dist": "sh ./scripts/dist.sh",
