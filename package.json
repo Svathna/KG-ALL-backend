@@ -4,7 +4,7 @@
   "description": "Fresh node",
   "main": "index.js",
   "scripts": {
-    "start": "node build/server.js",
+    "start": "npx node-ts src/server.ts",
     "dist": "sh ./scripts/dist.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
