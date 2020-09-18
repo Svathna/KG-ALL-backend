@@ -16,6 +16,9 @@
     "prettier:one": "prettier --write",
     "lintAndPretty": "npm run prettier && npm run lint:write"
   },
+  "engines": {
+    "node": "12.10.0"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
