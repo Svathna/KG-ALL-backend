@@ -171,11 +171,12 @@ app.post(
         fullName,
         phoneNumber,
         userName,
-        password,
         type: UserType.NORMAL_USER,
       };
       const company = new CompanyModel(companyProperties);
       const user = new UserModel(userProperties);
+      // save password
+      await user.generateHash(password);
       // save new user
       await user.save();
       company.user = user.id;
