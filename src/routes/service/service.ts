@@ -118,68 +118,94 @@ app.patch('/:id', withAuthAdmin, requires({ params: ['id'], body: [] }), async (
       docUrl,
     } = req.body;
 
-    const existingService = await ServiceModel.findOne({ _id: id });
+    const service = await ServiceModel.findOne({ _id: id });
     // sanity check
-    if (!existingService) {
+    if (!service) {
       return res.status(400).json({ success: false, message: 'Service not found' });
     }
-    // saniy check for threshold
-    if (threshold && threshold !== existingService.monthlyTaxService.threshold) {
-      existingService.monthlyTaxService.threshold = threshold;
-    }
-    // saniy check for moreThanThresholdPrice
-    if (
-      moreThanThresholdPrice &&
-      moreThanThresholdPrice !== existingService.monthlyTaxService.moreThanThresholdPrice
-    ) {
-      existingService.monthlyTaxService.moreThanThresholdPrice = moreThanThresholdPrice;
-    }
-    // saniy check for lessThanThresholdPrice
-    if (
-      lessThanThresholdPrice &&
-      lessThanThresholdPrice !== existingService.monthlyTaxService.lessThanThresholdPrice
-    ) {
-      existingService.monthlyTaxService.lessThanThresholdPrice = lessThanThresholdPrice;
-    }
-    // saniy check for salaryTaxPrice
-    if (salaryTaxPrice && salaryTaxPrice !== existingService.annualTaxService.salaryTaxPrice) {
-      existingService.annualTaxService.salaryTaxPrice = salaryTaxPrice;
-    }
-    // saniy check for patentTaxPrice
-    if (patentTaxPrice && patentTaxPrice !== existingService.annualTaxService.patentTaxPrice) {
-      existingService.annualTaxService.patentTaxPrice = patentTaxPrice;
-    }
-    // saniy check for trademarkTaxPrice
-    if (
-      trademarkTaxPrice &&
-      trademarkTaxPrice !== existingService.annualTaxService.trademarkTaxPrice
-    ) {
-      existingService.annualTaxService.trademarkTaxPrice = trademarkTaxPrice;
-    }
-    // saniy check for propertyTaxPrice
-    if (
-      propertyTaxPrice &&
-      propertyTaxPrice !== existingService.annualTaxService.propertyTaxPrice
-    ) {
-      existingService.annualTaxService.propertyTaxPrice = propertyTaxPrice;
-    }
-    // saniy check for transportationTaxPrice
-    if (
-      transportationTaxPrice &&
-      transportationTaxPrice !== existingService.annualTaxService.transportationTaxPrice
-    ) {
-      existingService.annualTaxService.transportationTaxPrice = transportationTaxPrice;
-    }
-    // sanity check for docUrl
-    if (docUrl) {
-      existingService.docUrl = docUrl;
-    }
+
+    const monthlyTaxService: MonthlyTaxService = {
+      threshold,
+      moreThanThresholdPrice,
+      lessThanThresholdPrice,
+    };
+
+    const annualTaxService: AnnualTaxService = {
+      salaryTaxPrice,
+      patentTaxPrice,
+      trademarkTaxPrice,
+      propertyTaxPrice,
+      transportationTaxPrice,
+    };
+
+    // saving
+    await ServiceModel.findOneAndUpdate(
+      { _id: id },
+      {
+        monthlyTaxService,
+        annualTaxService,
+        docUrl,
+      },
+      { new: true },
+    );
+
+    // // saniy check for threshold
+    // if (threshold && threshold !== service.monthlyTaxService.threshold) {
+    //   service.monthlyTaxService.threshold = threshold;
+    // }
+    // // saniy check for moreThanThresholdPrice
+    // if (
+    //   moreThanThresholdPrice &&
+    //   moreThanThresholdPrice !== service.monthlyTaxService.moreThanThresholdPrice
+    // ) {
+    //   service.monthlyTaxService.moreThanThresholdPrice = moreThanThresholdPrice;
+    // }
+    // // saniy check for lessThanThresholdPrice
+    // if (
+    //   lessThanThresholdPrice &&
+    //   lessThanThresholdPrice !== service.monthlyTaxService.lessThanThresholdPrice
+    // ) {
+    //   service.monthlyTaxService.lessThanThresholdPrice = lessThanThresholdPrice;
+    // }
+    // // saniy check for salaryTaxPrice
+    // if (salaryTaxPrice && salaryTaxPrice !== service.annualTaxService.salaryTaxPrice) {
+    //   service.annualTaxService.salaryTaxPrice = salaryTaxPrice;
+    // }
+    // // saniy check for patentTaxPrice
+    // if (patentTaxPrice && patentTaxPrice !== service.annualTaxService.patentTaxPrice) {
+    //   service.annualTaxService.patentTaxPrice = patentTaxPrice;
+    // }
+    // // saniy check for trademarkTaxPrice
+    // if (
+    //   trademarkTaxPrice &&
+    //   trademarkTaxPrice !== service.annualTaxService.trademarkTaxPrice
+    // ) {
+    //   service.annualTaxService.trademarkTaxPrice = trademarkTaxPrice;
+    // }
+    // // saniy check for propertyTaxPrice
+    // if (
+    //   propertyTaxPrice &&
+    //   propertyTaxPrice !== service.annualTaxService.propertyTaxPrice
+    // ) {
+    //   service.annualTaxService.propertyTaxPrice = propertyTaxPrice;
+    // }
+    // // saniy check for transportationTaxPrice
+    // if (
+    //   transportationTaxPrice &&
+    //   transportationTaxPrice !== service.annualTaxService.transportationTaxPrice
+    // ) {
+    //   service.annualTaxService.transportationTaxPrice = transportationTaxPrice;
+    // }
+    // // sanity check for docUrl
+    // if (docUrl) {
+    //   service.docUrl = docUrl;
+    // }
 
     // saving service
-    await existingService.save();
+    // await service.save();
 
     return res.json({
-      service: existingService,
+      service,
       success: true,
       message: 'Update successful!',
     });
