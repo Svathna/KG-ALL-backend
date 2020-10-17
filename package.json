@@ -5,7 +5,6 @@
   "main": "src/server.ts",
   "scripts": {
     "start-prod": "node build/server.js",
-    "npm-install":"npm install",
     "start-dev": "NODE_ENV=dev npx ts-node src/server.ts",
     "dist": "sh ./scripts/dist.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -17,7 +16,7 @@
     "prettier": "prettier --write src/**/*.ts",
     "prettier:one": "prettier --write",
     "lintAndPretty": "npm run prettier && npm run lint:write",
-    "heroku-postbuild": "npm run npm-install && npm run start-prod"
+    "heroku-postbuild": "echo Skip build on Heroku"
   },
   "engines": {
     "node": "12.10.0"
