@@ -58,10 +58,11 @@ app.get('/current/safe', withAuth, async (req, res) => {
       },
     },
     { $match: { user: user._id } },
+    { $match: { deleted: false } },
   ]);
 
   if (company.length === 0) {
-    return res.status(400).json({ success: false, message: 'User not found' });
+    return res.json({ success: false, message: 'User not found' });
   }
   // send the user back
   return res.json({
@@ -149,6 +150,7 @@ app.post('/login', requires({ body: ['userName', 'password'] }), async (req, res
         },
       },
       { $match: { user: user._id } },
+      { $match: { deleted: false } },
     ]);
 
     if (company.length === 0) {

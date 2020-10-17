@@ -152,14 +152,14 @@ app.post(
       // sanity check for existing company
       if (existcompany) {
         // send errors
-        return res.status(400).json({ success: false, message: 'Company name is in use' });
+        return res.json({ success: false, message: 'Company name is in use' });
       }
 
-      const existUser = await UserModel.findOne({ userName, delete: false });
+      const existUser = await UserModel.findOne({ userName, deleted: false });
       // sanity check
       if (existUser) {
         // send errors
-        return res.status(400).json({ success: false, message: 'Username is in use' });
+        return res.json({ success: false, message: 'Username is in use' });
       }
 
       const companyProperties = {
@@ -277,6 +277,7 @@ app.delete('/:id', withAuthAdmin, requires({ params: ['id'] }), async (req, res)
 
     // soft delete this company
     await CompanyModel.findByIdAndUpdate(id, { deleted: true }, { new: true });
+    await UserModel.findByIdAndUpdate(company.user, { deleted: true }, { new: true });
 
     return res.json({
       success: true,
