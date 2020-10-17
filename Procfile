@@ -1,1 +1,1 @@
-web: npx ts-node src/server.ts
+web: npm run start-dev
