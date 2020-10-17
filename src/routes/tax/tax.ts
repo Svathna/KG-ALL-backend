@@ -15,11 +15,11 @@ const { validationResult } = require('express-validator/check');
 const app = Router();
 
 /**
- * GET: Get one taxHistory `/tax/:id`
+ * GET: Get taxHistory by id `/tax/:id`
  */
 app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
   const { id } = req.params;
-  // get moc with id
+  // get taxHistory with id
   const taxHistory = await TaxHistoryModel.findOne({ _id: id, deleted: false });
   // sanity check for company
   if (!taxHistory) {
@@ -27,6 +27,24 @@ app.get('/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
       .status(400)
       .json({ success: false, message: 'TaxHistory do not exist in the Database' });
   }
+  // send the company back
+  return res.json({ taxHistory, success: true });
+});
+
+/**
+ * GET: Get taxHistory by companyId `/tax/company/:id`
+ */
+app.get('/company/:id', withAuth, requires({ params: ['id'] }), async (req, res) => {
+  const { id } = req.params;
+  // get company with id
+  const company = await CompanyModel.findOne({ _id: id, deleted: false });
+  // sanity check for company
+  if (!company) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'TaxHistory do not exist in the Database' });
+  }
+  const taxHistory = company.taxHistory ? company.taxHistory : null;
   // send the company back
   return res.json({ taxHistory, success: true });
 });
@@ -281,7 +299,7 @@ app.post(
 );
 
 // /**
-//  * DELETE: Delete a request `/request/:id`
+//  * DELETE: Delete a taxPermonth `/request/:id`
 //  */
 app.patch(
   '/taxPerMonth/remove/:id',
