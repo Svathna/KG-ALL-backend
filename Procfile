@@ -1,1 +1,1 @@
-web: ts-node/src/server.ts
+web: npm i && npm run start-dev
