@@ -5,7 +5,9 @@ import * as mongoose from 'mongoose';
 
 import routes from './routes';
 
-if (process.env.DB_URI === undefined) throw Error('DB_URI is not defined in .env file.');
+if (process.env.DB_URI === undefined) {
+  throw Error('DB_URI is not defined in .env file.');
+}
 
 mongoose.connect(process.env.DB_URI as string, {
   useNewUrlParser: true,
