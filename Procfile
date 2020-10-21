@@ -1,1 +1,1 @@
-web: DB_URI='mongodb+srv://kg-all-dev:Q1p2m3g4@cluster0-devyg.mongodb.net/test?retryWrites=true&w=majority' node build/server.js
+web: node build/server.js
