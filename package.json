@@ -17,8 +17,7 @@
     "lint:write:one": "tslint --project tsconfig.json --fix",
     "prettier": "prettier --write src/**/*.ts",
     "prettier:one": "prettier --write",
-    "lintAndPretty": "npm run prettier && npm run lint:write",
-    "heroku-postbuild": "echo Skip build on Heroku"
+    "lintAndPretty": "npm run prettier && npm run lint:write"
   },
   "engines": {
     "node": "12.10.0"
