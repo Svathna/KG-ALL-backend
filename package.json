@@ -18,6 +18,7 @@
     "prettier": "prettier --write src/**/*.ts",
     "prettier:one": "prettier --write",
     "lintAndPretty": "npm run prettier && npm run lint:write",
+    "heroku-postbuild": "echo Skip build on Heroku",
     "postinstall": "npm run build"
   },
   "engines": {
