@@ -14,7 +14,7 @@ if (process.env.DB_URI === undefined) {
 
 mongoose.connect(process.env.DB_URI as string, {
   useNewUrlParser: true,
-  useCreateIndex: true,
+  useUnifiedTopology: true,
 });
 
 mongoose.connection.on('connected', () => {
